@@ -1,4 +1,4 @@
-/*  Copyright (C) 2012-2020 by László Nagy
+/*  Copyright (C) 2012-2021 by László Nagy
     This file is part of Bear.
 
     Bear is a tool to generate compilation database for clang tooling.
@@ -18,38 +18,26 @@
  */
 
 #include "ToolExtendingWrapper.h"
-#include "ToolGcc.h"
 
-namespace cs {
+namespace cs::semantic {
 
-    semantic::ToolExtendingWrapper::ToolExtendingWrapper(CompilerWrapper &&compilers_to_recognize) noexcept
+    ToolExtendingWrapper::ToolExtendingWrapper(CompilerWrapper &&compilers_to_recognize) noexcept
             : compilers_to_recognize_(compilers_to_recognize)
     { }
 
-    const char *semantic::ToolExtendingWrapper::name() const {
-        return compilers_to_recognize_.executable.c_str();
-    }
-
-    bool semantic::ToolExtendingWrapper::recognize(const fs::path &program) const {
+    bool ToolExtendingWrapper::recognize(const fs::path &program) const {
         return compilers_to_recognize_.executable == program;
     }
 
-    rust::Result<cs::semantic::SemanticPtrs> semantic::ToolExtendingWrapper::compilations(const report::Command &command) const {
-        return ToolGcc().compilations(command)
-                .map<cs::semantic::SemanticPtrs>([this](auto semantics) {
-                    for (auto& semantic : semantics) {
-                        if (auto* ptr = dynamic_cast<Preprocess*>(semantic.get()); ptr != nullptr) {
-                            std::copy(compilers_to_recognize_.additional_flags.begin(),
-                                      compilers_to_recognize_.additional_flags.end(),
-                                      std::back_inserter(ptr->flags));
-                        }
-                        if (auto* ptr = dynamic_cast<Compile*>(semantic.get()); ptr != nullptr) {
-                            std::copy(compilers_to_recognize_.additional_flags.begin(),
-                                      compilers_to_recognize_.additional_flags.end(),
-                                      std::back_inserter(ptr->flags));
-                        }
+    rust::Result<SemanticPtr> ToolExtendingWrapper::recognize(const Execution &execution) const {
+        return ToolGcc::recognize(execution)
+                .map<cs::semantic::SemanticPtr>([this](auto semantic) {
+                    if (auto* ptr = dynamic_cast<Compile*>(semantic.get()); ptr != nullptr) {
+                        std::copy(compilers_to_recognize_.additional_flags.begin(),
+                                  compilers_to_recognize_.additional_flags.end(),
+                                  std::back_inserter(ptr->flags));
                     }
-                    return semantics;
+                    return semantic;
                 });
     }
 }

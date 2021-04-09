@@ -1,4 +1,4 @@
-/*  Copyright (C) 2012-2020 by László Nagy
+/*  Copyright (C) 2012-2021 by László Nagy
     This file is part of Bear.
 
     Bear is a tool to generate compilation database for clang tooling.
@@ -69,5 +69,14 @@ namespace sys::path {
     std::string join(const std::list<fs::path> &input)
     {
         return join_with(input, OS_PATH_SEPARATOR);
+    }
+
+    rust::Result<fs::path> get_cwd()
+    {
+        std::error_code error_code;
+        auto result = fs::current_path(error_code);
+        return (error_code)
+               ? rust::Result<fs::path>(rust::Err(std::runtime_error(error_code.message())))
+               : rust::Result<fs::path>(rust::Ok(result));
     }
 }

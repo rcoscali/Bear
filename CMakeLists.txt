@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
 cmake_policy(VERSION 3.12)
 
 project(Bear
-        VERSION 3.0.0
+        VERSION 3.0.11
         DESCRIPTION "Bear is a tool to generate compilation database for clang tooling."
         LANGUAGES C CXX
         )
@@ -46,11 +46,13 @@ ExternalProject_Add(BearSource
         CMAKE_ARGS
             -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
             -DCMAKE_PROJECT_VERSION=${CMAKE_PROJECT_VERSION}
+            -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
             -DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}
             -DCMAKE_CXX_STANDARD_REQUIRED=${CMAKE_CXX_STANDARD_REQUIRED}
             -DCMAKE_CXX_EXTENSIONS=${CMAKE_CXX_EXTENSIONS}
             -DCMAKE_CXX_FLAGS:STRING=${CMAKE_CXX_FLAGS}
             -DCMAKE_CXX_COMPILER:STRING=${CMAKE_CXX_COMPILER}
+            -DPKG_CONFIG_EXECUTABLE:PATH=${PKG_CONFIG_EXECUTABLE}
         CMAKE_CACHE_ARGS
             -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH}
             -DCMAKE_INSTALL_PREFIX:PATH=${STAGED_INSTALL_PREFIX}
@@ -58,8 +60,7 @@ ExternalProject_Add(BearSource
             -DROOT_INSTALL_PREFIX:PATH=${CMAKE_INSTALL_PREFIX}
             -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
             -DENABLE_UNIT_TESTS:BOOL=${ENABLE_UNIT_TESTS}
-        BUILD_ALWAYS
-            1
+            -DENABLE_FUNC_TESTS:BOOL=${ENABLE_FUNC_TESTS}
         TEST_BEFORE_INSTALL
             1
         TEST_COMMAND
@@ -75,6 +76,7 @@ if (ENABLE_FUNC_TESTS)
                 BearSource
             CMAKE_CACHE_ARGS
                 -DSTAGED_INSTALL_PREFIX:PATH=${STAGED_INSTALL_PREFIX}
+                -DBEARSOURCE_BUILD_DIR:PATH=${CMAKE_BINARY_DIR}/subprojects/Build/BearSource
             TEST_BEFORE_INSTALL
                 1
             INSTALL_COMMAND

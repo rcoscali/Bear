@@ -1,4 +1,4 @@
-/*  Copyright (C) 2012-2020 by László Nagy
+/*  Copyright (C) 2012-2021 by László Nagy
     This file is part of Bear.
 
     Bear is a tool to generate compilation database for clang tooling.
@@ -22,19 +22,13 @@
 #include "libresult/Result.h"
 #include "libsys/Environment.h"
 
-#include <filesystem>
-#include <list>
-#include <map>
 #include <string>
-
-namespace fs = std::filesystem;
 
 namespace sys::os {
 
     // Query methods about the system.
     [[nodiscard]] rust::Result<std::string> get_confstr(int key);
-    [[nodiscard]] rust::Result<std::map<std::string, std::string>> get_uname();
 
     // Return PATH from environment and fall back to confstr default one.
-    [[nodiscard]] rust::Result<std::list<fs::path>> get_path(const sys::env::Vars& env);
+    [[nodiscard]] rust::Result<std::string> get_path(const sys::env::Vars& env);
 }

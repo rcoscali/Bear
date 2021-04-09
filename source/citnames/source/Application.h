@@ -1,4 +1,4 @@
-/*  Copyright (C) 2012-2020 by László Nagy
+/*  Copyright (C) 2012-2021 by László Nagy
     This file is part of Bear.
 
     Bear is a tool to generate compilation database for clang tooling.
@@ -19,43 +19,40 @@
 
 #pragma once
 
-#include "libflags/Flags.h"
+#include "Output.h"
+#include "semantic/Tool.h"
+#include "libmain/ApplicationFromArgs.h"
 #include "libresult/Result.h"
 #include "libsys/Environment.h"
 
+#include <filesystem>
+#include <utility>
+
+namespace fs = std::filesystem;
+
 namespace cs {
 
-    class Application {
-    public:
-        static constexpr char VERBOSE[] = "--verbose";
-        static constexpr char INPUT[] = "--input";
-        static constexpr char OUTPUT[] = "--output";
-        static constexpr char INCLUDE[] = "--include";
-        static constexpr char EXCLUDE[] = "--exclude";
-        static constexpr char APPEND[] = "--append";
-        static constexpr char RUN_CHECKS[] = "--run-checks";
-        static constexpr char CONFIG[] = "--config";
+    struct Arguments {
+        fs::path input;
+        fs::path output;
+        bool append;
+    };
 
-        static ::rust::Result<Application> from(const flags::Arguments&, sys::env::Vars&&);
+    struct Command : ps::Command {
+        Command(Arguments arguments, cs::Configuration configuration) noexcept;
 
-        ::rust::Result<int> operator()() const;
-
-    public:
-        Application() = delete;
-        ~Application();
-
-        Application(const Application&) = delete;
-        Application(Application&&) noexcept;
-
-        Application& operator=(const Application&) = delete;
-        Application& operator=(Application&&) noexcept;
+        [[nodiscard]] rust::Result<int> execute() const override;
 
     private:
-        struct State;
+        Arguments arguments_;
+        cs::Configuration configuration_;
+    };
 
-        explicit Application(State*);
+    struct Application : ps::ApplicationFromArgs {
+        Application() noexcept;
 
-    private:
-        State const* impl_;
+        rust::Result<flags::Arguments> parse(int argc, const char **argv) const override;
+
+        rust::Result<ps::CommandPtr> command(const flags::Arguments &args, const char **envp) const override;
     };
 }

@@ -1,6 +1,6 @@
 message(STATUS "Looking for gRPC::grpc++ dependency")
 find_package(PkgConfig REQUIRED)
-pkg_check_modules(gRPC protobuf>=3.11 grpc++>=1.28)
+pkg_check_modules(gRPC protobuf>=3.11 grpc++>=1.26)
 if (gRPC_FOUND)
     message(STATUS "Looking for gRPC::grpc++ dependency -- found")
 
@@ -29,8 +29,10 @@ else ()
             GIT_REPOSITORY
                 https://github.com/grpc/grpc
             GIT_TAG
-                v1.32.0
+                v1.36.4
             GIT_SUBMODULES
+	    GIT_SHALLOW
+	    	1
             UPDATE_COMMAND
                 ""
             LOG_CONFIGURE

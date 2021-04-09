@@ -1,4 +1,4 @@
-/*  Copyright (C) 2012-2020 by László Nagy
+/*  Copyright (C) 2012-2021 by László Nagy
     This file is part of Bear.
 
     Bear is a tool to generate compilation database for clang tooling.
@@ -24,18 +24,10 @@
 
 namespace cs::semantic {
 
-    const char* ToolClang::name() const {
-        return "Clang";
-    }
-
     bool ToolClang::recognize(const fs::path& program) const {
         static const auto pattern = std::regex(R"(^([^-]*-)*clang(|\+\+)(-?\d+(\.\d+){0,2})?$)");
 
         std::cmatch m;
         return std::regex_match(program.filename().c_str(), m, pattern);
-    }
-
-    rust::Result<SemanticPtrs> ToolClang::compilations(const report::Command &command) const {
-        return ToolGcc().compilations(command);
     }
 }

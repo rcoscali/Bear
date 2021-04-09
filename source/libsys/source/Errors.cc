@@ -1,4 +1,4 @@
-/*  Copyright (C) 2012-2020 by László Nagy
+/*  Copyright (C) 2012-2021 by László Nagy
     This file is part of Bear.
 
     Bear is a tool to generate compilation database for clang tooling.
@@ -17,7 +17,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Errors.h"
+#include "libsys/Errors.h"
 
 #include "config.h"
 
@@ -34,11 +34,11 @@ namespace sys {
 #ifdef HAVE_STRERROR_R
 #if defined(__GLIBC__) && defined(_GNU_SOURCE)
         char buffer[256];
-        char* result = strerror_r(error, buffer, 255);
+        char* result = ::strerror_r(error, buffer, 255);
         return std::string(result);
 #else
         char buffer[256];
-        strerror_r(error, buffer, 255);
+        ::strerror_r(error, buffer, 255);
         return std::string(buffer);
 #endif
 #else

@@ -1,4 +1,4 @@
-/*  Copyright (C) 2012-2020 by László Nagy
+/*  Copyright (C) 2012-2021 by László Nagy
     This file is part of Bear.
 
     Bear is a tool to generate compilation database for clang tooling.
@@ -80,11 +80,11 @@ namespace cs {
         virtual ~CompilationDatabase() noexcept = default;
 
         // Serialization methods with error mapping.
-        virtual rust::Result<size_t> to_json(const fs::path& file, const Entries &entries) const;
-        virtual rust::Result<size_t> to_json(std::ostream &ostream, const Entries &entries) const;
+        [[nodiscard]] virtual rust::Result<size_t> to_json(const fs::path& file, const Entries &entries) const;
+        [[nodiscard]] virtual rust::Result<size_t> to_json(std::ostream &ostream, const Entries &entries) const;
 
-        virtual rust::Result<Entries> from_json(const fs::path& file) const;
-        virtual rust::Result<Entries> from_json(std::istream &istream) const;
+        [[nodiscard]] virtual rust::Result<Entries> from_json(const fs::path& file) const;
+        [[nodiscard]] virtual rust::Result<Entries> from_json(std::istream &istream) const;
 
     private:
         Format format;

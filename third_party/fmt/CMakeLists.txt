@@ -10,9 +10,9 @@ else ()
     include(ExternalProject)
     ExternalProject_Add(fmt_dependency
             URL
-                https://github.com/fmtlib/fmt/archive/7.0.3.tar.gz
+                https://github.com/fmtlib/fmt/archive/7.1.3.tar.gz
             URL_HASH
-                MD5=57392b7ea09592a2b237a02950f35bb0
+                MD5=2522ec65070c0bda0ca288677ded2831
             DOWNLOAD_NO_PROGRESS
                 1
             UPDATE_COMMAND

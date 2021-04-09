@@ -1,4 +1,4 @@
-/*  Copyright (C) 2012-2020 by László Nagy
+/*  Copyright (C) 2012-2021 by László Nagy
     This file is part of Bear.
 
     Bear is a tool to generate compilation database for clang tooling.
@@ -19,69 +19,41 @@
 
 #pragma once
 
-#include "Configuration.h"
-#include "Output.h"
 #include "semantic/Semantic.h"
 #include "libresult/Result.h"
-#include "libreport/Report.h"
 
-#include <filesystem>
-#include <list>
 #include <memory>
-
-namespace fs = std::filesystem;
 
 namespace cs::semantic {
 
-    // Represents a compiler or an executable which produce relevant entries
-    // to the compilation database. It can recognize the tool execution from
-    // a command line invocation and its context.
+    // Represents a program, which can recognize the intent of the execution
+    // and return the semantic of that. It can be a compiler or any other
+    // program participating in a build process.
     struct Tool {
         virtual ~Tool() noexcept = default;
 
-        // Returns the tool name.
+        // Returns the semantic of a command execution.
         [[nodiscard]]
-        virtual const char* name() const = 0;
+        virtual rust::Result<SemanticPtr> recognize(const Execution &) const = 0;
 
-        // Returns true if the tool is identified from the executable name or path.
-        [[nodiscard]]
-        virtual bool recognize(const fs::path &program) const = 0;
-
-        // Returns the compilation entries if those were recognised.
-        //
-        // Can return an optional with an empty list, which says that it was
-        // recognized the tool execution, but the execution was not a compilation.
-        [[nodiscard]]
-        virtual rust::Result<SemanticPtrs> compilations(const report::Command &) const = 0;
+        // Helper methods to evaluate the recognize method result.
+        static bool recognized_ok(const rust::Result<SemanticPtr> &result) noexcept;
+        static bool recognized_with_error(const rust::Result<SemanticPtr> &result) noexcept;
+        static bool not_recognized(const rust::Result<SemanticPtr> &result) noexcept;
     };
 
-    // Represents an expert system which can recognize compilation entries from
-    // command executions. It covers multiple tools and consider omit results
-    // based on configuration.
-    class Tools {
-    public:
-        Tools() = delete;
-        ~Tools() noexcept = default;
+    inline
+    bool Tool::recognized_ok(const rust::Result<SemanticPtr> &result) noexcept {
+        return result.is_ok() && (result.unwrap().operator bool());
+    }
 
-        static rust::Result<Tools> from(Compilation cfg);
+    inline
+    bool Tool::recognized_with_error(const rust::Result<SemanticPtr> &result) noexcept {
+        return result.is_err();
+    }
 
-        [[nodiscard]]
-        Entries transform(const report::Report &command) const;
-
-    private:
-        using ToolPtr = std::shared_ptr<Tool>;
-        using ToolPtrs = std::list<ToolPtr>;
-
-        Tools(ToolPtrs &&, std::list<fs::path>&&) noexcept;
-
-        [[nodiscard]]
-        rust::Result<SemanticPtrs> recognize(const report::Execution &execution) const;
-
-        [[nodiscard]]
-        rust::Result<ToolPtr> select(const report::Command &command) const;
-
-    private:
-        ToolPtrs tools_;
-        std::list<fs::path> to_exclude_;
-    };
+    inline
+    bool Tool::not_recognized(const rust::Result<SemanticPtr> &result) noexcept {
+        return result.is_ok() && !(result.unwrap().operator bool());
+    }
 }

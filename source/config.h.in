@@ -1,4 +1,4 @@
-/*  Copyright (C) 2012-2020 by László Nagy
+/*  Copyright (C) 2012-2021 by László Nagy
     This file is part of Bear.
 
     Bear is a tool to generate compilation database for clang tooling.
@@ -66,5 +66,8 @@ constexpr char VERSION[] = "@CMAKE_PROJECT_VERSION@";
 constexpr char CITNAMES_DEFAULT_PATH[] = "@ROOT_INSTALL_PREFIX@/@CMAKE_INSTALL_BINDIR@/citnames";
 constexpr char INTERCEPT_DEFAULT_PATH[] = "@ROOT_INSTALL_PREFIX@/@CMAKE_INSTALL_BINDIR@/intercept";
 constexpr char LIBRARY_DEFAULT_PATH[] = "@ROOT_INSTALL_PREFIX@/@CMAKE_INSTALL_LIBEXECDIR@/@CMAKE_SHARED_LIBRARY_PREFIX@exec@CMAKE_SHARED_LIBRARY_SUFFIX@";
-constexpr char EXECUTOR_DEFAULT_PATH[] = "@ROOT_INSTALL_PREFIX@/@CMAKE_INSTALL_LIBEXECDIR@/er";
-constexpr char WRAPPER_DEFAULT_PATH[] = "@ROOT_INSTALL_PREFIX@/@CMAKE_INSTALL_LIBEXECDIR@/wrapper.d";
+constexpr char WRAPPER_DEFAULT_PATH[] = "@ROOT_INSTALL_PREFIX@/@CMAKE_INSTALL_LIBEXECDIR@/wrapper";
+constexpr char WRAPPER_DIR_DEFAULT_PATH[] = "@ROOT_INSTALL_PREFIX@/@CMAKE_INSTALL_LIBEXECDIR@/wrapper.d";
+
+constexpr char EVENTS_DB_DEFAULT[] = "events.db";
+constexpr char COMPILATION_DB_DEFAULT[] = "compile_commands.json";

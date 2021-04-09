@@ -1,4 +1,4 @@
-/*  Copyright (C) 2012-2020 by László Nagy
+/*  Copyright (C) 2012-2021 by László Nagy
     This file is part of Bear.
 
     Bear is a tool to generate compilation database for clang tooling.
@@ -25,8 +25,8 @@
 
 namespace {
 
-    constexpr cs::Format AS_ARGUMENTS( true, false);
-    constexpr cs::Format AS_COMMAND(false, false);
+    constexpr cs::Format AS_ARGUMENTS { true, false };
+    constexpr cs::Format AS_COMMAND { false, false };
 
     cs::Content NO_FILTER {
         false, {}, {}

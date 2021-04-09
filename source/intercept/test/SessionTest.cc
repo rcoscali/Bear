@@ -1,4 +1,4 @@
-/*  Copyright (C) 2012-2020 by László Nagy
+/*  Copyright (C) 2012-2021 by László Nagy
     This file is part of Bear.
 
     Bear is a tool to generate compilation database for clang tooling.
@@ -20,34 +20,22 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-#include "Session.h"
+#include "collect/Session.h"
 
 namespace {
 
     struct SessionFixture : ic::Session {
     public:
         MOCK_METHOD(
-            rust::Result<std::string>,
+            rust::Result<ic::Execution>,
             resolve,
-            (const std::string& name),
+            (const ic::Execution &input),
             (const, override));
 
         MOCK_METHOD(
-            (rust::Result<std::map<std::string, std::string>>),
-            update,
-            ((const std::map<std::string, std::string>&)env),
-            (const, override));
-
-        MOCK_METHOD(
-            (rust::Result<sys::Process::Builder>),
+            (sys::Process::Builder),
             supervise,
-            (const std::vector<std::string_view>& command),
-            (const, override));
-
-        MOCK_METHOD(
-            std::string,
-            get_session_type,
-            (),
+            (const ic::Execution &),
             (const, override));
 
         using Session::keep_front_in_path;

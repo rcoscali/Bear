@@ -1,4 +1,4 @@
-/*  Copyright (C) 2012-2020 by László Nagy
+/*  Copyright (C) 2012-2021 by László Nagy
     This file is part of Bear.
 
     Bear is a tool to generate compilation database for clang tooling.
@@ -22,6 +22,7 @@
 #include <functional>
 #include <stdexcept>
 #include <type_traits>
+#include <cstring>
 
 namespace rust {
 
@@ -170,20 +171,16 @@ namespace rust {
     class Result {
     public:
         Result() = delete;
-
         ~Result();
 
         Result(Result&& other) noexcept;
-
         Result(const Result& other);
 
         Result& operator=(Result&& other) noexcept;
-
         Result& operator=(const Result& other);
 
-        Result(types::Ok<T>&& ok); // NOLINT
-
-        Result(types::Err<E>&& err); // NOLINT
+        Result(types::Ok<T>&& ok) noexcept;
+        Result(types::Err<E>&& err) noexcept;
 
     public:
         [[nodiscard]] bool is_ok() const;
@@ -211,6 +208,8 @@ namespace rust {
 
         Result<T, E> or_else(std::function<Result<T, E>(const E&)> const& f) const;
 
+        const T& unwrap() const;
+        const E& unwrap_err() const;
         const T& unwrap_or(const T& value) const;
 
         T unwrap_or_else(std::function<T(const E&)> const& provider) const;
@@ -222,6 +221,18 @@ namespace rust {
         bool ok_;
         internals::Storage<T, E> storage_;
     };
+
+    template <typename T>
+    bool operator==(Result<T, std::runtime_error> const &lhs, Result<T, std::runtime_error> const &rhs) {
+        return  (lhs.is_ok() && rhs.is_ok() && (lhs.unwrap() == rhs.unwrap())) ||
+                (lhs.is_err() && rhs.is_err() && (std::strcmp(lhs.unwrap_err().what(), rhs.unwrap_err().what()) == 0));
+    }
+
+    template <typename T, typename E>
+    bool operator==(Result<T, E> const &lhs, Result<T, E> const &rhs) {
+        return  (lhs.is_ok() && rhs.is_ok() && (lhs.unwrap() == rhs.unwrap())) ||
+                (lhs.is_err() && rhs.is_err() && (lhs.unwrap_err() == rhs.unwrap_err()));
+    }
 
     template <typename T1, typename T2>
     Result<std::tuple<T1, T2>> merge(const Result<T1>& t1, const Result<T2>& t2)
@@ -243,6 +254,18 @@ namespace rust {
                 });
             });
         });
+    }
+
+    template<typename T1, typename T2, typename T3, typename T4>
+    Result<std::tuple<T1, T2, T3, T4>>
+    merge(const Result<T1> &t1, const Result<T2> &t2, const Result<T3> &t3, const Result<T4> &t4) {
+        return merge(merge(t1, t2), merge(t3, t4))
+                .template map<std::tuple<T1, T2, T3, T4>>([](auto tuple) {
+                    const auto&[t12, t34] = tuple;
+                    const auto&[t1, t2] = t12;
+                    const auto&[t3, t4] = t34;
+                    return std::make_tuple(t1, t2, t3, t4);
+                });
     }
 
     template <typename T, typename E>
@@ -336,7 +359,7 @@ namespace rust {
     }
 
     template <typename T, typename E>
-    Result<T, E>::Result(types::Ok<T>&& ok)
+    Result<T, E>::Result(types::Ok<T>&& ok) noexcept
             : ok_(true)
             , storage_()
     {
@@ -344,7 +367,7 @@ namespace rust {
     }
 
     template <typename T, typename E>
-    Result<T, E>::Result(types::Err<E>&& err)
+    Result<T, E>::Result(types::Err<E>&& err) noexcept
             : ok_(false)
             , storage_()
     {
@@ -454,6 +477,18 @@ namespace rust {
         } else {
             return f(storage_.template get<E>());
         }
+    }
+
+    template <typename T, typename E>
+    const T& Result<T, E>::unwrap() const
+    {
+        return storage_.template get<T>();
+    }
+
+    template <typename T, typename E>
+    const E& Result<T, E>::unwrap_err() const
+    {
+        return storage_.template get<E>();
     }
 
     template <typename T, typename E>

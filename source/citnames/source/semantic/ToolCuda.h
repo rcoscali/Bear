@@ -1,4 +1,4 @@
-/*  Copyright (C) 2012-2020 by László Nagy
+/*  Copyright (C) 2012-2021 by László Nagy
     This file is part of Bear.
 
     Bear is a tool to generate compilation database for clang tooling.
@@ -19,18 +19,12 @@
 
 #pragma once
 
-#include "Tool.h"
+#include "ToolGcc.h"
 
 namespace cs::semantic {
 
-    struct ToolCuda : public Tool {
-        [[nodiscard]]
-        const char* name() const override;
-
+    struct ToolCuda : public ToolGcc {
         [[nodiscard]]
         bool recognize(const fs::path& program) const override;
-
-        [[nodiscard]]
-        rust::Result<SemanticPtrs> compilations(const report::Command &command) const override;
     };
 }

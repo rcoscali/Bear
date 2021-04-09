@@ -1,4 +1,4 @@
-/*  Copyright (C) 2012-2020 by László Nagy
+/*  Copyright (C) 2012-2021 by László Nagy
     This file is part of Bear.
 
     Bear is a tool to generate compilation database for clang tooling.
@@ -116,8 +116,12 @@ namespace cs {
     }
 
     void from_json(const nlohmann::json &j, Configuration &rhs) {
-        j.at("output").get_to(rhs.output);
-        j.at("compilation").get_to(rhs.compilation);
+        if (j.contains("output")) {
+            j.at("output").get_to(rhs.output);
+        }
+        if (j.contains("compilation")) {
+            j.at("compilation").get_to(rhs.compilation);
+        }
     }
 
     void to_json(nlohmann::json &j, const Configuration &rhs) {
